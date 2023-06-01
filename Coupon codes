@@ -1,0 +1,47 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+chrome_options = Options()
+chrome_options.add_argument("--headless") 
+service = Service('C:\\Users\\singa\\Downloads\\chromedriver_win32\\chromedriver.exe') 
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+url = "https://www.coupons.com/coupon-codes/farfetch"
+driver.get(url)
+
+coupon_codes = []
+
+voucher_divs = driver.find_elements(By.XPATH, '//div[contains(@class, "VoucherCard")]')
+
+for voucher_div in voucher_divs:
+   
+    ActionChains(driver).move_to_element(voucher_div).click().perform()
+    print("Clicked on voucher div")
+
+    pop_up_div = WebDriverWait(driver, 15).until(
+        EC.visibility_of_element_located((By.XPATH, '//div[contains(@class, "ha1sx56")]'))
+    )
+    print("Pop-up appeared")
+
+    coupon_code = pop_up_div.find_element(By.XPATH, '//h4[contains(@class, "tqzsj70")]').text
+    expiry_date = pop_up_div.find_element(By.XPATH, '//span[contains(@class, "_8e4xc30")]').text
+
+    coupon_codes.append({"coupon_code": coupon_code})
+    print("Coupon code and expiry date extracted")
+   
+    driver.find_element(By.XPATH, '//span[contains(@class, "_8e4xc30")]').click()
+    print("Closed the pop-up")
+
+
+for coupon in coupon_codes:
+    print("Coupon Code:", coupon["coupon_code"])
+    print("Expiry Date:", coupon["expiry_date"])
+    print("---")
+
+
+driver.quit()
